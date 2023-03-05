@@ -1,9 +1,12 @@
 package com.mrx.indoorserviceapp
 
+/* После запуска права приложению нужно выдать вручную в настройки -> приложения */
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.Observer
+import com.mrx.indoorservice.api.IndoorService
 import org.altbeacon.beacon.Beacon
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.Region
@@ -17,15 +20,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         beaconReferenceApplication = application as BeaconReferenceApplication
 
-        val region: Region = Region("all-beacons-region", null, null, null)
-        val regionViewModel = BeaconManager.getInstanceForApplication(this).getRegionViewModel(region)
+        val indoorService = IndoorService.getInstance(this)
 
-        regionViewModel.rangedBeacons.observe(this, rangingObserver)
-        BeaconManager.getInstanceForApplication(this).startRangingBeacons(region)
-    }
+        indoorService.BeaconsEnvironment.getRangingViewModel().observe(this) { beacons ->
+            Log.d("myTag", "Ranged: ${beacons.count()} beacons")
+        }
 
-    val rangingObserver = Observer<Collection<Beacon>> { beacons ->
-        Log.d("myTag", "Ranged: ${beacons.count()} beacons")
+        indoorService.BeaconsEnvironment.startRanging()
     }
 
     companion object {
