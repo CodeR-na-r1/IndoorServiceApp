@@ -44,9 +44,6 @@ class MainActivity : AppCompatActivity() {
     private val observer = Observer<Collection<BeaconsEnvironmentInfo>>{ beacons ->
         Log.d(TAG, "Ranged: ${beacons.count()} beacons")
 
-        //if (beacons.size < 4)
-            //return@Observer
-
         var temp = "Ranged: ${beacons.count()} beacons\n"
         for (beacon in beacons.sortedBy { it.beaconId }) {
             Log.d(TAG, "${beacon.beaconId} --> ${beacon.distance}")
@@ -54,8 +51,8 @@ class MainActivity : AppCompatActivity() {
         }
         binding.textViewBeacons.text = temp
 
-        if (beacons.size > 1) {
-            val envInfo = beacons.map { EnvironmentInfo(it.beaconId, it.distance) }
+        if (beacons.size > 2) {
+            val envInfo = indoorService.Mapper.fromBeaconsEnvironmentInfoToEnvironmentInfo(beacons)
 
             val posInfo = indoorService.Position.getPosition(envInfo)
             binding.textViewPosition.text = "(${posInfo.position.x}, ${posInfo.position.y})"
