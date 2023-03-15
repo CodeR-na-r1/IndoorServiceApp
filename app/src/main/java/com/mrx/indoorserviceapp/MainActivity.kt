@@ -32,10 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         indoorService.Position.setEnvironment(stateEnv)
 
-        beaconManager.beaconParsers.clear()
-        beaconManager.beaconParsers.add(BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"))
-
-        BeaconManager.setRssiFilterImplClass(ArmaRssiFilter::class.java);
+        //BeaconManager.setRssiFilterImplClass(ArmaRssiFilter::class.java);
 
         indoorService.BeaconsEnvironment.getRangingViewModel().observe(this, observer)
         indoorService.BeaconsEnvironment.startRanging()
