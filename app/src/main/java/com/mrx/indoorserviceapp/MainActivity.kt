@@ -38,6 +38,12 @@ class MainActivity : AppCompatActivity() {
         indoorService.BeaconsEnvironment.startRanging()
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        indoorService.BeaconsEnvironment.stopRanging()
+    }
+
     private val observer = Observer<Collection<BeaconsEnvironmentInfo>>{ beacons ->
         Log.d(TAG, "Ranged: ${beacons.count()} beacons")
 
