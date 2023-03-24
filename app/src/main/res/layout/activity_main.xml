@@ -13,9 +13,9 @@
         android:layout_height="wrap_content"
 
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="270dp"
 
-        android:text="Hello World!" />
+        android:text="Beacons will be here" />
 
     <TextView
         android:id="@+id/textViewPosition"
@@ -23,8 +23,22 @@
 
         android:layout_centerHorizontal="true"
 
+        android:layout_marginTop="50dp"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="Position will be here" />
+
+    <TextView
+        android:id="@+id/textViewAzimuth"
+        android:layout_below="@+id/textViewPosition"
+
+        android:layout_centerHorizontal="true"
+
+        android:layout_marginTop="80dp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Azimuth will be here" />
 
 </RelativeLayout>

@@ -26,46 +26,59 @@ class MainActivity : AppCompatActivity() {
 
     private val indoorService: IndoorService by lazy { IndoorService.getInstance(this) }
 
+    private val dataBeacons = mutableMapOf<String, Double>()
+
+    private val beaconsPositions = listOf(
+        StateEnvironment("E4:C1:3F:EF:49:D7", Point(0.0, 0.0)),
+        StateEnvironment("D3:81:75:66:79:B8", Point(7.0, 0.0)),
+        StateEnvironment("CF:CA:06:0F:D0:F9", Point(10.0, 7.0)),
+        StateEnvironment("E6:96:DA:5C:82:59", Point(0.0, 7.0))
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        indoorService.Position.setEnvironment(stateEnv)
+        indoorService.Position.setEnvironment(beaconsPositions)
 
         //BeaconManager.setRssiFilterImplClass(ArmaRssiFilter::class.java);
 
-        indoorService.BeaconsEnvironment.getRangingViewModel().observe(this, observer)
+        indoorService.BeaconsEnvironment.getRangingViewModel().observe(this, observerBeacons)
+        indoorService.AzimuthManager.getAzimuthViewModel().observe(this, observerAzimuth)
+
         indoorService.BeaconsEnvironment.startRanging()
+        indoorService.AzimuthManager.startListen()
     }
 
     override fun onPause() {
         super.onPause()
 
         indoorService.BeaconsEnvironment.stopRanging()
+        indoorService.AzimuthManager.stopListen()
     }
 
-    private val observer = Observer<Collection<BeaconsEnvironmentInfo>>{ beacons ->
+    private val observerBeacons = Observer<Collection<BeaconsEnvironmentInfo>>{ beacons ->
         Log.d(TAG, "Ranged: ${beacons.count()} beacons")
 
-        var temp = "Ranged: ${beacons.count()} beacons\n"
-        for (beacon in beacons.sortedBy { it.beaconId }) {
-            Log.d(TAG, "${beacon.beaconId} --> ${beacon.distance}")
-            temp += "${beacon.beaconId} --> ${beacon.distance}\n"
+        beacons.forEach { beacon ->
+            dataBeacons[beacon.beaconId] = beacon.distance
         }
-        binding.textViewBeacons.text = temp
+
+        var textForTextView = "Ranged: ${beacons.size} beacons\n"
+        dataBeacons.forEach { beacon ->
+            textForTextView += "${beacon.key} -> ${beacon.value}\n"
+        }
+        binding.textViewBeacons.text = textForTextView
 
         if (beacons.size > 2) {
-            val envInfo = indoorService.Mapper.fromBeaconsEnvironmentInfoToEnvironmentInfo(beacons)
-
-            val posInfo = indoorService.Position.getPosition(envInfo)
-            binding.textViewPosition.text = "(${posInfo.position.x}, ${posInfo.position.y})"
+            val posInfo = indoorService.Position.getPosition(dataBeacons.map { EnvironmentInfo(it.key, it.value) })
+            binding.textViewPosition.text = "Position: (${posInfo.position.x}, ${posInfo.position.y})"
         }
     }
 
-    private val stateEnv = listOf(StateEnvironment("DF:6A:59:AE:F9:CC", Point<Double>(0.0, 0.0)),
-        StateEnvironment("D3:81:75:66:79:B8", Point<Double>(2.0, 0.0)),
-        StateEnvironment("E4:C1:3F:EF:49:D7", Point<Double>(2.0, 1.4)),
-        StateEnvironment("E6:96:DA:5C:82:59", Point<Double>(2.0, 1.4)))
+    private val observerAzimuth = Observer<Float> { azimuth ->
+        binding.textViewAzimuth.text = azimuth.toInt().toString()
+    }
 
     companion object {
         const val TAG = "myTag"
